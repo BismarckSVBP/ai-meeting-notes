@@ -1,33 +1,31 @@
 
-// import dotenv from "dotenv";
-// import { connectDB } from "./config/db.js";
-// import app from "./app.js";
-
-// dotenv.config();
-
-// const PORT = process.env.PORT || 8080;
-
-// const start = async () => {
-//   await connectDB(process.env.MONGODB_URI);
-//   app.listen(PORT, () => console.log(`✅ API listening on ${PORT}`));
-// };
-
-// start();
 import dotenv from "dotenv";
-import { connectDB } from "./config/db.js";
-import app from "./app.js";
-
 dotenv.config();
 
-const init = async () => {
+import { connectDB } from "./config/db.js";
+import express from "express";
+import cors from "cors";
+import summaryRoutes from "./routes/summaryRoutes.js";
+
+const app = express();
+app.use(cors());
+app.use(express.json({ limit: "10mb" }));
+
+
+app.get("/api/health", (_, res) => res.json({ ok: true }));
+
+
+app.use("/api", summaryRoutes);
+
+
+(async () => {
   try {
     await connectDB(process.env.MONGODB_URI);
     console.log("✅ Database connected");
-  } catch (err) {
-    console.error("❌ DB connection failed:", err);
+  } catch (error) {
+    console.error("❌ Failed to connect DB:", error);
   }
-};
+})();
 
-init();
 
 export default app;
