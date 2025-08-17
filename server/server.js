@@ -13,15 +13,21 @@
 // };
 
 // start();
-
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import app from "./app.js";
 
 dotenv.config();
 
+const init = async () => {
+  try {
+    await connectDB(process.env.MONGODB_URI);
+    console.log("✅ Database connected");
+  } catch (err) {
+    console.error("❌ DB connection failed:", err);
+  }
+};
 
-await connectDB(process.env.MONGODB_URI);
-
+init();
 
 export default app;
