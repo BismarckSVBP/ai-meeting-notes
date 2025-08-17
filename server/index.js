@@ -8,9 +8,9 @@ import { connectDB } from "./config/db.js";
 
 const app = express();
 
-// CORS
+// ✅ CORS
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: process.env.NODE_ENV === "production" ? "*" : "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
@@ -22,10 +22,7 @@ app.use(express.json({ limit: "10mb" }));
 // Health check
 app.get("/api/health", (_, res) => res.json({ ok: true }));
 
-// API routes
-app.use("/api", summaryRoutes);
-
-// ✅ Lazy DB connection (per request if needed)
+// ✅ Lazy DB connection
 let isConnected = false;
 async function initDB() {
   if (!isConnected) {
@@ -35,7 +32,7 @@ async function initDB() {
   }
 }
 
-// Middleware to ensure DB is connected
+// Middleware ensures DB is connected
 app.use(async (req, res, next) => {
   try {
     await initDB();
@@ -46,5 +43,8 @@ app.use(async (req, res, next) => {
   }
 });
 
-// ✅ Export Express app for Vercel
+// Routes
+app.use("/api", summaryRoutes);
+
+// ✅ Export (required by Vercel)
 export default app;
